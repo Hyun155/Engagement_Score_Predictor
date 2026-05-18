@@ -320,17 +320,24 @@ if page == "🔮 Live Predictor":
                     label_text, render_fn = prediction_message(prediction)
                     render_fn(label_text)
 
-                    probability_df = pd.DataFrame({"Tier": ["Low", "Medium", "High"], "Probability": proba_vector[:3] * 100.0})
+                    # Probability visualization with emoji labels
+                    engagement_labels = ["Low 💔", "Medium ⚠️", "High 🔥"]
+                    probability_df = pd.DataFrame({
+                        "Engagement Level": engagement_labels,
+                        "Probability": proba_vector[:3] * 100.0
+                    })
                     probability_df["Label"] = probability_df["Probability"].map(lambda value: f"{value:.1f}%")
+                    
                     if PLOTLY_AVAILABLE:
                         fig_prob = px.bar(
                             probability_df.sort_values("Probability"),
                             x="Probability",
-                            y="Tier",
+                            y="Engagement Level",
                             orientation="h",
                             text="Label",
-                            color="Tier",
-                            color_discrete_map={"Low": "#ff7f8f", "Medium": "#f4b860", "High": "#7db7ff"},
+                            color="Engagement Level",
+                            color_discrete_map={"Low 💔": "#ff7f8f", "Medium ⚠️": "#f4b860", "High 🔥": "#7db7ff"},
+                            title="Engagement Probability Distribution 🔮"
                         )
                         fig_prob.update_traces(textposition="inside")
                         fig_prob.update_layout(
@@ -343,7 +350,15 @@ if page == "🔮 Live Predictor":
                         )
                         st.plotly_chart(fig_prob, use_container_width=True)
                     else:
-                        st.bar_chart(probability_df.set_index("Tier")["Probability"])
+                        st.bar_chart(probability_df.set_index("Engagement Level")["Probability"])
+                    
+                    # Confidence indicator
+                    confidence = max(proba_vector)
+                    if confidence < 0.6:
+                        st.info("⚠️ Low confidence — mixed behavioral signals detected")
+                    else:
+                        st.success("🔥 High confidence prediction")
+                    
                     st.caption("Model confidence reflects behavioral consistency in interaction patterns.")
 
                     st.markdown("---")
