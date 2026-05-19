@@ -376,168 +376,86 @@ elif page == "🧠 Behavioral Insights":
     if not PLOTLY_AVAILABLE:
         st.warning("Plotly is required for this page. Please install `plotly` to view Behavioral Insights charts.")
     else:
-        tiers = ["Low Engagement", "Medium Engagement", "High Engagement"]
-        tier_colors = {
-            "Low Engagement": "#ff7f8f",
-            "Medium Engagement": "#f4b860",
-            "High Engagement": "#7db7ff",
-        }
-
+        import os
+        from pathlib import Path
+        
+        images_dir = Path("images")
+        
+        # 0. Top 10 Feature Importance
         with st.container():
-            st.subheader("Feature Importance: Core Drivers")
-            importance_df = pd.DataFrame(
-                {
-                    "Feature": [
-                        "mutual_matches",
-                        "message_sent_count",
-                        "likes_received",
-                        "swipe_right_ratio",
-                        "app_usage_time_min",
-                        "emoji_usage_rate",
-                    ],
-                    "Importance": [0.30, 0.24, 0.18, 0.12, 0.10, 0.06],
-                }
-            ).sort_values("Importance")
-            fig_importance = px.bar(
-                importance_df,
-                x="Importance",
-                y="Feature",
-                orientation="h",
-                color="Importance",
-                color_continuous_scale=["#ffd6e0", "#ff9ab1", "#d84f78"],
-            )
-            fig_importance.update_layout(height=380, margin=dict(l=10, r=10, t=10, b=10), coloraxis_showscale=False)
-            st.plotly_chart(fig_importance, use_container_width=True)
-            st.caption("These behavioral signals have the strongest influence on engagement prediction.")
-
-        st.write("")
-
+            st.markdown("<h3 style='font-size: 24px;'>🏆 Top 10 Feature Importance (Random Forest)</h3>", unsafe_allow_html=True)
+            img_path = images_dir / "top10features.png"
+            if img_path.exists():
+                st.image(str(img_path), width=700)
+            else:
+                st.error("Image not found: top10features.png")
+            st.write("This chart displays the top 10 most important features from the Random Forest model. Likes received emerges as the most significant predictor of engagement, followed by message sent count and bio length. These features reveal that user popularity, communication activity, and profile completeness are the primary drivers of engagement on the platform.")
+            st.write("")
+        
+        # 1. Distribution of Engagement Tiers
         with st.container():
-            st.subheader("Engagement Distribution")
-            distribution_df = pd.DataFrame(
-                {
-                    "Engagement Tier": tiers,
-                    "Users": [33, 34, 33],
-                }
-            )
-            fig_distribution = px.pie(
-                distribution_df,
-                names="Engagement Tier",
-                values="Users",
-                hole=0.52,
-                color="Engagement Tier",
-                color_discrete_map=tier_colors,
-            )
-            fig_distribution.update_traces(textinfo="percent+label")
-            fig_distribution.update_layout(height=390, margin=dict(l=10, r=10, t=10, b=10))
-            st.plotly_chart(fig_distribution, use_container_width=True)
-            st.caption("Distribution shows how engagement levels are balanced across users.")
+            st.markdown("<h3 style='font-size: 24px;'>📊 Distribution of Engagement Tiers</h3>", unsafe_allow_html=True)
+            img_path = images_dir / "distribution.png"
+            if img_path.exists():
+                st.image(str(img_path), width=700)
+            else:
+                st.error("Image not found: distribution.png")
+            st.write("This plot shows the count of users in each engagement tier (Low, Medium, High). It appears the tiers are roughly balanced, which is expected since pd.qcut was used to create them.")
+            st.write("")
 
-        st.write("")
-
+        # 2. Messages Sent Count vs. Engagement Tier
         with st.container():
-            st.subheader("Messages Sent vs Engagement")
-            messages_df = pd.DataFrame(
-                {
-                    "Engagement Tier": tiers,
-                    "Messages Sent": [5, 25, 78],
-                }
-            )
-            fig_messages = px.bar(
-                messages_df,
-                x="Engagement Tier",
-                y="Messages Sent",
-                color="Engagement Tier",
-                color_discrete_map=tier_colors,
-            )
-            fig_messages.update_layout(height=350, margin=dict(l=10, r=10, t=10, b=10), showlegend=False)
-            st.plotly_chart(fig_messages, use_container_width=True)
-            st.caption("Higher messaging activity strongly correlates with engagement tier.")
+            st.markdown("<h3 style='font-size: 24px;'>💬 Messages Sent Count vs. Engagement Tier</h3>", unsafe_allow_html=True)
+            img_path = images_dir / "messagecount.png"
+            if img_path.exists():
+                st.image(str(img_path), width=700)
+            else:
+                st.error("Image not found: messagecount.png")
+            st.write("This box plot illustrates the relationship between the number of messages sent and engagement. Generally, users in higher engagement tiers (Medium and High) tend to send more messages, with the highest engagement tier showing the highest median and range of messages sent. This indicates that active communication is a strong indicator of engagement.")
+            st.write("")
 
-        st.write("")
-
+        # 3. Swipe Right Ratio vs. Engagement Tier
         with st.container():
-            st.subheader("Swipe Behavior Analysis")
-            swipe_df = pd.DataFrame(
-                {
-                    "Engagement Tier": tiers,
-                    "Swipe Right Ratio": [0.31, 0.46, 0.58],
-                }
-            )
-            fig_swipe = px.line(
-                swipe_df,
-                x="Engagement Tier",
-                y="Swipe Right Ratio",
-                markers=True,
-            )
-            fig_swipe.update_traces(line_color="#8b5cf6", marker_color="#8b5cf6", marker_size=10)
-            fig_swipe.update_layout(height=330, margin=dict(l=10, r=10, t=10, b=10))
-            st.plotly_chart(fig_swipe, use_container_width=True)
-            st.caption("Swipe behavior alone is not sufficient — interaction quality matters.")
+            st.markdown("<h3 style='font-size: 24px;'>👍 Swipe Right Ratio vs. Engagement Tier</h3>", unsafe_allow_html=True)
+            img_path = images_dir / "swiperightratio.png"
+            if img_path.exists():
+                st.image(str(img_path), width=700)
+            else:
+                st.error("Image not found: swiperightratio.png")
+            st.write("This plot displays how the ratio of right swipes relates to engagement. We can see a slight upward trend, suggesting that users who swipe right more often (indicating more interest in profiles) tend to be in higher engagement tiers. This aligns with the idea that active participation in the core app functionality drives engagement.")
+            st.write("")
 
-        st.write("")
-
+        # 4. App Usage Time vs. Engagement Tier
         with st.container():
-            st.subheader("App Usage Time vs Engagement")
-            usage_df = pd.DataFrame(
-                {
-                    "Engagement Tier": tiers,
-                    "App Usage Time (min)": [34, 108, 162],
-                }
-            )
-            fig_usage = px.area(
-                usage_df,
-                x="Engagement Tier",
-                y="App Usage Time (min)",
-                markers=True,
-            )
-            fig_usage.update_traces(line_color="#14b8a6", fillcolor="rgba(20,184,166,0.25)")
-            fig_usage.update_layout(height=330, margin=dict(l=10, r=10, t=10, b=10))
-            st.plotly_chart(fig_usage, use_container_width=True)
-            st.caption("Engagement increases with usage time but plateaus at high usage.")
+            st.markdown("<h3 style='font-size: 24px;'>⏱️ App Usage Time (Minutes) vs. Engagement Tier</h3>", unsafe_allow_html=True)
+            img_path = images_dir / "appusagetime.png"
+            if img_path.exists():
+                st.image(str(img_path), width=700)
+            else:
+                st.error("Image not found: appusagetime.png")
+            st.write("This box plot shows that users in higher engagement tiers (Medium and High) spend significantly more time on the app. This is an expected and strong correlation, as higher app usage directly translates to higher engagement.")
+            st.write("")
 
-        st.write("")
-
+        # 5. Emoji Usage Rate vs. Engagement Tier
         with st.container():
-            st.subheader("Emoji Usage vs Engagement")
-            emoji_df = pd.DataFrame(
-                {
-                    "Engagement Tier": tiers,
-                    "Emoji Usage Rate": [0.08, 0.31, 0.64],
-                }
-            )
-            fig_emoji = px.scatter(
-                emoji_df,
-                x="Engagement Tier",
-                y="Emoji Usage Rate",
-                size="Emoji Usage Rate",
-                color="Engagement Tier",
-                color_discrete_map=tier_colors,
-            )
-            fig_emoji.update_layout(height=340, margin=dict(l=10, r=10, t=10, b=10), showlegend=False)
-            st.plotly_chart(fig_emoji, use_container_width=True)
-            st.caption("Expressive communication is linked to stronger interaction patterns.")
+            st.markdown("<h3 style='font-size: 24px;'>😀 Emoji Usage Rate vs. Engagement Tier</h3>", unsafe_allow_html=True)
+            img_path = images_dir / "emojiusagerate.png"
+            if img_path.exists():
+                st.image(str(img_path), width=700)
+            else:
+                st.error("Image not found: emojiusagerate.png")
+            st.write("This plot reveals that users in higher engagement tiers, especially 'High', tend to have a higher emoji usage rate. This suggests that more expressive communicators are often more engaged with the platform.")
+            st.write("")
 
-        st.write("")
-
+        # 6. Relationship Intent Impact on Engagement Tier
         with st.container():
-            st.subheader("Relationship Intent Impact")
-            intent_df = pd.DataFrame(
-                {
-                    "Relationship Intent": ["Hookups", "Serious Relationship", "Friends Only", "Networking"],
-                    "Avg Engagement Score": [0.92, 1.74, 1.22, 1.05],
-                }
-            )
-            fig_intent = px.bar(
-                intent_df,
-                x="Relationship Intent",
-                y="Avg Engagement Score",
-                color="Relationship Intent",
-                color_discrete_sequence=["#f97393", "#7db7ff", "#f4b860", "#34d399"],
-            )
-            fig_intent.update_layout(height=350, margin=dict(l=10, r=10, t=10, b=10), showlegend=False)
-            st.plotly_chart(fig_intent, use_container_width=True)
-            st.caption("User intent significantly influences engagement behavior patterns.")
+            st.markdown("<h3 style='font-size: 24px;'>💑 Relationship Intent Impact on Engagement Tier</h3>", unsafe_allow_html=True)
+            img_path = images_dir / "relationship intent.png"
+            if img_path.exists():
+                st.image(str(img_path), width=700)
+            else:
+                st.error("Image not found: relationship intent.png")
+            st.write("This bar chart breaks down the distribution of engagement tiers across different relationship intents. You can observe which relationship intents are more prevalent in 'Low', 'Medium', or 'High' engagement groups. For instance, 'Serious Relationship' intent seems to have a substantial presence across all tiers, while other intents might be more skewed towards certain engagement levels. This provides insight into how user intentions influence their engagement.")
 
 
 else:
